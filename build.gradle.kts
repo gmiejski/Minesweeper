@@ -7,6 +7,8 @@ plugins {
 	kotlin("plugin.spring") version "1.3.71"
 }
 
+apply(plugin = "io.spring.dependency-management")
+
 group = "com.gmiejski.minesweeper"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -23,6 +25,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:4.0.2") // for kotest framework
+	testImplementation("io.kotest:kotest-assertions-core-jvm:4.0.2") // for kotest core jvm assertions
 }
 
 tasks.withType<Test> {
@@ -34,4 +38,8 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "1.8"
 	}
+}
+
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+	mainClassName = "com.gmiejski.minesweeper.MineSweeperApplicationKt"
 }
