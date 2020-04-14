@@ -53,7 +53,7 @@ class GameTest {
     }
 
 
-    private fun generateGame(height: Int, width: Int, bombsPosiitons: Set<FieldCoordinate>): Game {
-        return GameBuilder(height, width).bombs(bombsPosiitons).build()
+    private fun generateGame(height: Int, width: Int, bombsPositions: Set<FieldCoordinate>): Game {
+        return GameBuilder(height, width).bombs(bombsPositions).build()
     }
 }

@@ -1,6 +1,10 @@
 package com.gmiejski.minesweeper.game.domain
 
+import com.gmiejski.minesweeper.game.domain.grid.BoardView
+import com.gmiejski.minesweeper.game.domain.grid.GameGrid
+import java.time.LocalDateTime
 import java.util.stream.IntStream
+import kotlin.random.Random
 import kotlin.streams.toList
 
 enum class DiscoveryResult {
@@ -8,19 +12,21 @@ enum class DiscoveryResult {
 }
 
 enum class GameStatus {
-    IN_PROGRESS, EXPLODED, WON
+    NOT_INITIALIZED, IN_PROGRESS, EXPLODED, WON
 }
 
 
-data class Field(val position: FieldCoordinate, val isBomb: Boolean) {
+data class Field(val position: FieldCoordinate, var isBomb: Boolean) {
     var discovered: Boolean = false
 }
 
 
 data class FieldCoordinate(val positionX: Int, val positionY: Int)
 
-class Game(private val gameGrid: GameGrid) {
+
+class Game(val gameID: GameID) {
     private var currentStatus: GameStatus = GameStatus.IN_PROGRESS
+    private lateinit var gameGrid: GameGrid // TODO change for non-lateinit empty Grid
 
     fun discover(fieldCoordinate: FieldCoordinate): DiscoveryResult {
         if (gameGrid.isBomb(fieldCoordinate)) {
@@ -40,34 +46,21 @@ class Game(private val gameGrid: GameGrid) {
         return gameGrid.getView()
     }
 
-}
+    fun initializeGame(fields: Map<FieldCoordinate, Field>) {
+        this.currentStatus = GameStatus.IN_PROGRESS
+        this.gameGrid = GameGrid(fields)
+    }
 
-class BoardView(val width: Int, val height: Int, map: List<FieldView>) {
-    val visibleFields: List<FieldCoordinate> = map.filter { it.discovered }.map { it.coordinates }
-}
-
-class GameGrid(private val fields: Map<FieldCoordinate, Field>) {
-    private val width = fields.keys.map { it.positionX }.max() ?: 0
-    private val height = fields.keys.map { it.positionY }.max() ?: 0
-
-    fun isBomb(fieldCoordinate: FieldCoordinate): Boolean {
-        if (fields.containsKey(fieldCoordinate)) {
-            return fields.get(fieldCoordinate)!!.isBomb
+    fun canDiscover(fieldCoordinate: FieldCoordinate): DiscoverTry {
+        return when (this.gameGrid.isDiscovered(fieldCoordinate)) { // TODO where to check if in bounds?
+            true -> DiscoverTry.ALREADY_DISCOVERED
+            false -> DiscoverTry.CAN_BE_DISCOVERED
         }
-        return false
-    }
-
-    fun getView(): BoardView {
-        return BoardView(width, height, fields.map { FieldView(it.key, it.value.discovered) })
-    }
-
-    fun discover(fieldCoordinate: FieldCoordinate) {
-        fields.get(fieldCoordinate)?.discovered = true
     }
 }
 
-class FieldView(val coordinates: FieldCoordinate, val discovered: Boolean) {
-
+enum class DiscoverTry {
+    ALREADY_DISCOVERED, CAN_BE_DISCOVERED
 }
 
 
@@ -88,6 +81,6 @@ class GameBuilder(val height: Int, val width: Int) {
 
     fun build(): Game {
         val fields = bombsPositions.flatten().groupBy { it.position }.mapValues { it.value.first() }
-        return Game(GameGrid(fields))
+        return EventHandler().applyAll(Game(Random.nextInt()), listOf(GameCreatedEvent(Random.nextInt(), width, height, fields, LocalDateTime.now())))// TODO Event handler should be hidden?
     }
 }
