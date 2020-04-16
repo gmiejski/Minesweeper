@@ -25,7 +25,10 @@ class EventHandler {
             events.forEach { event ->
                 when (event) {
                     is GameCreatedEvent -> {
-                        game.initializeGame(event.fields)
+                        game.initializeGame(event.rows, event.columns, event.bombsCoordinates)
+                    }
+                    is FieldDiscoveredEvent -> {
+                        game.confirmDiscovery(event.allDiscoveredFields)
                     }
                 }
             }

@@ -31,7 +31,7 @@ class GameTest {
     @Test
     fun discoveringEmptyFieldDiscoversAllPossibleFields() {
         // given
-        val expectedDiscoveredFieldsEvents = fieldsList(listOf(
+        val expectedDiscoveredFieldsEvents = coordinatesList(listOf(
             Pair(1, 3), Pair(1, 4), Pair(1, 5),
             Pair(2, 2), Pair(2, 3), Pair(2, 4), Pair(2, 5),
             Pair(3, 1), Pair(3, 2),
@@ -63,7 +63,7 @@ class GameTest {
     @Test
     fun discoveringEmptyFieldDiscoversAllPossibleFieldsButOnlyASingleArea() {
         // given
-        val expectedDiscoveredFieldsEvents = fieldsList(listOf(
+        val expectedDiscoveredFieldsEvents = coordinatesList(listOf(
             Pair(1, 5), Pair(1, 6),
             Pair(2, 5), Pair(2, 6),
             Pair(3, 5), Pair(3, 6),
@@ -113,9 +113,6 @@ class GameTest {
         }
     }
 
-    private fun fieldsList(list: List<Pair<Int, Int>>): List<FieldCoordinate> {
-        return list.map { FieldCoordinate(it.first, it.second) }
-    }
 
     @Test
     fun getBoardView() {
@@ -131,7 +128,7 @@ class GameTest {
     }
 
     @Test
-    fun discoveringABombFlagEmitsBombDiscoveredEvent() {
+    fun discoveringBombFieldEndsGame() {
         return
         // given
         val game = generateGame(5, 5, setOf(FieldCoordinate(3, 3)))

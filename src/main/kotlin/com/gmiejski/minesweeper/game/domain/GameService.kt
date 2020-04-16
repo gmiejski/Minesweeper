@@ -12,22 +12,22 @@ class AlreadyStarted(gameID: GameID) : RuntimeException("Game $gameID already st
 
 class MineSweeperGameService(val repository: GameRepository, val commandHandler: GameCommandHandler) {
 
-    fun startGame(): Game {
+    fun startGame(rows: Int, columns: Int, bombsCount: Int): Game {
         val gameID = Random.nextInt()
-        val events = commandHandler.process(Game(gameID), CreateGameCommand())
+        val events = commandHandler.process(Game(gameID), CreateGameCommand(rows, columns, bombsCount))
 
         val game = repository.applyAll(Game(gameID), events)
         return game
     }
 
     fun executeAction(gameID: GameID, command: Command) {
-
-        val find = repository.find(gameID) ?: throw GameNotFound(gameID)
-
+        val game = repository.find(gameID) ?: throw GameNotFound(gameID)
+        val events = this.commandHandler.process(game, command)
+        this.repository.applyAll(game, events)
     }
 
     fun getGameGrid(gameID: GameID): BoardView {
-
-        return BoardView(1, 1, emptyMap()) // TODO
+        val find = repository.find(gameID)
+        return find?.getBoardView() ?: throw GameNotFound(gameID)
     }
 }

@@ -1,6 +1,5 @@
 package com.gmiejski.minesweeper.game.domain.grid
 
-import com.gmiejski.minesweeper.game.domain.Field
 import com.gmiejski.minesweeper.game.domain.FieldCoordinate
 
 
@@ -8,32 +7,54 @@ typealias FieldValue = Int
 
 
 const val BOMB = -2
-const val EMPTY = 0
+const val SAFE_FIELD = 0
+const val UNKNOWN = -3
 
-class GameGrid(private val fields: Map<FieldCoordinate, Field>) {
-    private val rows = fields.keys.map { it.row }.max() ?: 0
-    private val columns = fields.keys.map { it.column }.max() ?: 0
-    private val fieldsContent = buildNumbersMap(fields)
+typealias Grid = List<GridRow>
 
-    private fun buildNumbersMap(fields: Map<FieldCoordinate, Field>): Map<FieldCoordinate, FieldValue> {
-        val result = mutableMapOf<FieldCoordinate, Int>()
-        fields.forEach { (currentField, _) ->
-            if (this.isBomb(currentField)) {
-                result[currentField] = BOMB
-            } else {
-                val neighboursMines = calculateNeighbouringMines(currentField, fields)
-                result[currentField] = neighboursMines
+fun Grid.getRow(row: Int): GridRow {
+    return this[row - 1]
+}
+typealias GridRow = List<GridCell>
+
+fun GridRow.getColumn(column: Int): GridCell {
+    return this[column - 1]
+}
+
+
+data class GridCell(val coordinate: FieldCoordinate, var isDiscovered: Boolean, val fieldValue: FieldValue)
+
+class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates: Set<FieldCoordinate>) {
+    private val grid = buildGrid(bombsCoordinates)
+
+    private fun buildGrid(bombsCoordinates: Set<FieldCoordinate>): Grid {
+        val result = mutableListOf<GridRow>()
+        IntRange(1, rows).forEach { row ->
+            val newRow = mutableListOf<GridCell>()
+            IntRange(1, columns).forEach { col ->
+                val coordinate = FieldCoordinate(row, col)
+                val value = calculateFieldValue(coordinate, bombsCoordinates)
+                newRow.add(GridCell(coordinate, false, value))
             }
+            result.add(newRow)
         }
         return result
     }
 
-    private fun calculateNeighbouringMines(currentField: FieldCoordinate, fields: Map<FieldCoordinate, Field>): Int {
+    private fun calculateFieldValue(coordinate: FieldCoordinate, bombsCoordinates: Set<FieldCoordinate>): FieldValue {
+        if (bombsCoordinates.contains(coordinate)) {
+            return BOMB
+        }
+        return calculateNeighbouringMines(coordinate, bombsCoordinates)
+    }
+
+    private fun calculateNeighbouringMines(currentField: FieldCoordinate, bombsFields: Set<FieldCoordinate>): Int {
         var neighboursMines = 0
         IntRange(currentField.row - 1, currentField.row + 1).forEach { row ->
             IntRange(currentField.column - 1, currentField.column + 1).forEach { col ->
-                if ((row != currentField.row || col != currentField.column) && this.validGrid(row, col)) {
-                    if (fields[FieldCoordinate(row, col)]?.isBomb == true) {
+                val neighbourCoordinate = FieldCoordinate(row, col)
+                if (neighbourCoordinate != currentField && this.validCoordinate(row, col)) {
+                    if (bombsFields.contains(neighbourCoordinate)) {
                         neighboursMines += 1
                     }
                 }
@@ -42,27 +63,30 @@ class GameGrid(private val fields: Map<FieldCoordinate, Field>) {
         return neighboursMines
     }
 
-    fun isBomb(fieldCoordinate: FieldCoordinate): Boolean {
-        if (fields.containsKey(fieldCoordinate)) {
-            return fields.get(fieldCoordinate)!!.isBomb
-        }
-        return false
+    fun isBomb(coordinate: FieldCoordinate): Boolean {
+        return this.getFieldValue(coordinate) == BOMB
+    }
+
+    private fun getFieldValue(coordinate: FieldCoordinate): FieldValue {
+        this.checkCoordinate(coordinate)
+        return findCell(coordinate).fieldValue
+    }
+
+    private fun findCell(coordinate: FieldCoordinate): GridCell {
+        return this.grid.getRow(coordinate.row).getColumn(coordinate.column)
     }
 
     fun getView(): BoardView {
-        return BoardView(rows, columns, fields)
+        return BoardView(rows, columns, this.grid)
     }
 
-    fun discover(fieldCoordinate: FieldCoordinate) {
-        fields.get(fieldCoordinate)?.discovered = true
+    fun isDiscovered(coordinate: FieldCoordinate): Boolean {
+        this.checkCoordinate(coordinate)
+        return findCell(coordinate).isDiscovered
     }
 
-    fun isDiscovered(fieldCoordinate: FieldCoordinate): Boolean {
-        return this.fields.get(fieldCoordinate)?.discovered ?: false
-    }
-
-    fun discoverTry(fieldCoordinate: FieldCoordinate): List<FieldCoordinate> {
-        if (this.isBomb(fieldCoordinate) || this.isNumber(fieldCoordinate)) {
+    fun discoverAllAround(fieldCoordinate: FieldCoordinate): List<FieldCoordinate> {
+        if (this.isBomb(fieldCoordinate) || this.isDangerousField(fieldCoordinate)) {
             return listOf(fieldCoordinate)
         }
         val discoveredSoFar = mutableListOf<FieldCoordinate>()
@@ -77,13 +101,13 @@ class GameGrid(private val fields: Map<FieldCoordinate, Field>) {
                 continue
             }
             discoveredSoFar.add(currentField)
-            if (this.isNumber(currentField)) {
+            if (this.isDangerousField(currentField)) {
                 continue
             }
             val batchAdd = mutableListOf<FieldCoordinate>()
             IntRange(currentField.row - 1, currentField.row + 1).forEach { row ->
                 IntRange(currentField.column - 1, currentField.column + 1).forEach { col ->
-                    if (this.validGrid(row, col)) {
+                    if (this.validCoordinate(row, col)) {
                         batchAdd.add(FieldCoordinate(row, col))
                     }
                 }
@@ -94,14 +118,26 @@ class GameGrid(private val fields: Map<FieldCoordinate, Field>) {
         return discoveredSoFar
     }
 
-    private fun isNumber(fieldCoordinate: FieldCoordinate): Boolean {
-        val value = this.fieldsContent[fieldCoordinate] ?: return false
-        return value != BOMB && value != EMPTY
+    // Dangerous field is when it's neighbour is a bomb
+    private fun isDangerousField(coordinate: FieldCoordinate): Boolean {
+        this.checkCoordinate(coordinate)
+        return getFieldValue(coordinate) > SAFE_FIELD
     }
 
-    private fun validGrid(row: Int, col: Int): Boolean {
-        val rowOK = 1 <= row && row <= rows
-        val colOK = 1 <= col && col <= columns
+    private fun validCoordinate(row: Int, col: Int): Boolean {
+        val rowOK = row in 1..rows
+        val colOK = col in 1..columns
         return rowOK && colOK
     }
+
+    private fun checkCoordinate(coordinate: FieldCoordinate) {
+        if (this.validCoordinate(coordinate.row, coordinate.column).not()) {
+            throw RuntimeException("cell coordinate out of game grid!")
+        }
+    }
+
+    fun mapAsDiscovered(coordinate: FieldCoordinate) {
+        this.findCell(coordinate).isDiscovered = true
+    }
 }
+

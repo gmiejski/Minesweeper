@@ -11,8 +11,9 @@ class GameRepository(val eventHandler: EventHandler, val eventStore: EventStore)
     }
 
     fun applyAll(game: Game, events: List<DomainEvent>): Game {
-        // TODO save
-        return this.eventHandler.applyAll(game, events)
+        val applyAll = this.eventHandler.applyAll(game, events)
+        this.eventStore.saveAll(game.gameID, events)
+        return applyAll
     }
 }
 

@@ -1,24 +1,29 @@
 package com.gmiejski.minesweeper.domain
 
+import com.gmiejski.minesweeper.game.domain.grid.BOMB
 import com.gmiejski.minesweeper.game.domain.grid.BoardView
+import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
+import com.gmiejski.minesweeper.game.domain.grid.SAFE_FIELD
 
 class DrawGrid {
     fun draw(view: BoardView) {
         view.gridRows.forEach {
-            print("____".repeat(it.fieldView.size))
+            print("____".repeat(it.fields.size))
             println()
-            it.fieldView.forEach {
+            it.fields.forEach {
                 print("|")
-                if (it.discovered && it.isBomb) {
+                if (it.state == BOMB) {
                     print(" * ")
-                } else if (it.discovered) {
+                } else if (it.state == SAFE_FIELD) {
                     print("   ")
-                } else {
+                } else if (it.state == UNKNOWN) {
                     print("###")
+                } else {
+                    print("#${it.state}#")
                 }
             }
             println()
-            print("````".repeat(it.fieldView.size))
+            print("````".repeat(it.fields.size))
             println()
         }
     }

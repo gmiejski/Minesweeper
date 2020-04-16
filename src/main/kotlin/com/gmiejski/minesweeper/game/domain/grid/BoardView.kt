@@ -1,33 +1,33 @@
 package com.gmiejski.minesweeper.game.domain.grid
 
-import com.gmiejski.minesweeper.game.domain.Field
 import com.gmiejski.minesweeper.game.domain.FieldCoordinate
 
-class BoardView(val width: Int, val height: Int, fields: Map<FieldCoordinate, Field>) {
-    val gridRows = fields.values
-        .sortedWith(comparator())
-        .chunked(fields.keys.map { it.row }.max() ?: 1) // Why 1?
-        .map { BoardViewRow(it) }
 
+data class BoardViewRow(val fields: List<BoardViewField>)
+data class BoardViewField(val coordinate: FieldCoordinate, val state: FieldValue)
 
-    private fun comparator(): java.util.Comparator<Field> {
-        return Comparator { o1, o2 ->
-            if (o1.position.row == o2.position.row) {
-                if (o1.position.column <= o2.position.column) {
-                    return@Comparator -1
+class BoardView(val rows: Int, val columns: Int, originalGrid: Grid) {
+    val gridRows = getGridRows(originalGrid)
+
+    private fun getGridRows(grid: Grid): List<BoardViewRow> {
+        val map = grid.map { gridRow ->
+            BoardViewRow(gridRow.map { cell ->
+                if (cell.isDiscovered) {
+                    BoardViewField(cell.coordinate, cell.fieldValue)
                 } else {
-                    return@Comparator 1
+                    BoardViewField(cell.coordinate, UNKNOWN)
                 }
-            } else {
-                return@Comparator if (o1.position.row < o2.position.row) -1 else 1
-            }
+
+            })
         }
+        return map
     }
 
-}
+    fun getFieldValue(row: Int, column: Int): BoardViewField {
+        return gridRows[row - 1].fields[column - 1]
+    }
 
-class BoardViewRow(fields: List<Field>) {
-    val fieldView = fields.map { BoardViewField(it.discovered, it.isBomb) }
+    fun getFieldValue(coordinate: FieldCoordinate): BoardViewField {
+        return this.getFieldValue(coordinate.row, coordinate.column)
+    }
 }
-
-data class BoardViewField(val discovered: Boolean, val isBomb: Boolean)

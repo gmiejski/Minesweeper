@@ -1,12 +1,9 @@
 package com.gmiejski.minesweeper.game.domain
 
-class Configuration {
-}
-
 fun build(): MineSweeperGameService {
-    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(RandomGenerator()))
+    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(RandomBombsCoordinatesGenerator()))
 }
 
-fun buildForTest(generator: RandomGenerator): MineSweeperGameService {
-    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(generator))
+fun buildForTest(bombsCoordinatesGenerator: BombsCoordinatesGenerator): MineSweeperGameService {
+    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(bombsCoordinatesGenerator))
 }
