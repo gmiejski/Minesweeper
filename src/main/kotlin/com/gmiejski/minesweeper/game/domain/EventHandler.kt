@@ -3,17 +3,24 @@ package com.gmiejski.minesweeper.game.domain
 import java.time.LocalDateTime
 
 
-interface GameEvent {
-    val time: LocalDateTime // TODO Replace with versioning?
-    val target: GameID
+abstract class DomainEvent(open val target: GameID) {
+    var time: LocalDateTime
+
+    init {
+        time = LocalDateTime.now()
+    }
+
+    fun occurredAt(time: LocalDateTime): DomainEvent {
+        return this
+    }
 }
 
-data class GameCreatedEvent(override val target: GameID, val width: Int, val height: Int, val fields: Map<FieldCoordinate, Field>, override val time: LocalDateTime) : GameEvent
-data class FieldDiscoveredEvent(override val target: GameID, val field: FieldCoordinate, override val time: LocalDateTime) : GameEvent
-
+fun Collection<DomainEvent>.withDate(time: LocalDateTime): List<DomainEvent> {
+    return this.map { it.occurredAt(time) }
+}
 
 class EventHandler {
-    fun applyAll(game: Game, events: List<GameEvent>): Game {
+    fun applyAll(game: Game, events: List<DomainEvent>): Game {
         events.forEach {
             events.forEach { event ->
                 when (event) {

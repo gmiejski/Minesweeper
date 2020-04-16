@@ -21,21 +21,24 @@ data class Field(val position: FieldCoordinate, var isBomb: Boolean) {
 }
 
 
-data class FieldCoordinate(val positionX: Int, val positionY: Int)
+data class FieldCoordinate(val row: Int, val column: Int)
 
+data class GameCreatedEvent(override val target: GameID, val rows: Int, val columns: Int, val fields: Map<FieldCoordinate, Field>) : DomainEvent(target)
+data class GameEnded(override val target: GameID) : DomainEvent(target)
+data class BombExploded(override val target: GameID, val bombField: FieldCoordinate) : DomainEvent(target)
+data class FieldDiscoveredEvent(override val target: GameID, val discoveredField: FieldCoordinate, val allDiscoveredFields: List<FieldCoordinate>) : DomainEvent(target)
 
 class Game(val gameID: GameID) {
     private var currentStatus: GameStatus = GameStatus.IN_PROGRESS
     private lateinit var gameGrid: GameGrid // TODO change for non-lateinit empty Grid
 
-    fun discover(fieldCoordinate: FieldCoordinate): DiscoveryResult {
+    fun discover(fieldCoordinate: FieldCoordinate): List<DomainEvent> {
         if (gameGrid.isBomb(fieldCoordinate)) {
-            this.currentStatus = GameStatus.EXPLODED
-            return DiscoveryResult.BOMB
+            val now = LocalDateTime.now()
+            return listOf(BombExploded(gameID, fieldCoordinate).occurredAt(now), GameEnded(gameID).occurredAt(now))
         }
-        gameGrid.discover(fieldCoordinate)
-
-        return DiscoveryResult.EMPTY
+        val allCoordinates = gameGrid.discoverTry(fieldCoordinate)
+        return listOf(FieldDiscoveredEvent(gameID, fieldCoordinate, allCoordinates))
     }
 
     fun status(): GameStatus {
@@ -64,13 +67,13 @@ enum class DiscoverTry {
 }
 
 
-class GameBuilder(val height: Int, val width: Int) {
+class GameBuilder(val rows: Int, val cols: Int) {
     private lateinit var bombsPositions: List<List<Field>>
 
     fun bombs(bombsPositions: Set<FieldCoordinate>): GameBuilder {
-        val calculatePositions = IntStream.range(1, height + 1).mapToObj { h ->
-            IntStream.range(1, width + 1).mapToObj { w ->
-                val coordinate = FieldCoordinate(h, w)
+        val calculatePositions = IntStream.range(1, rows + 1).mapToObj { row ->
+            IntStream.range(1, cols + 1).mapToObj { col ->
+                val coordinate = FieldCoordinate(row, col)
                 Field(coordinate, bombsPositions.contains(coordinate))
             }.toList()
         }.toList()
@@ -81,6 +84,6 @@ class GameBuilder(val height: Int, val width: Int) {
 
     fun build(): Game {
         val fields = bombsPositions.flatten().groupBy { it.position }.mapValues { it.value.first() }
-        return EventHandler().applyAll(Game(Random.nextInt()), listOf(GameCreatedEvent(Random.nextInt(), width, height, fields, LocalDateTime.now())))// TODO Event handler should be hidden?
+        return EventHandler().applyAll(Game(Random.nextInt()), listOf(GameCreatedEvent(Random.nextInt(), rows, cols, fields).occurredAt(LocalDateTime.now())))// TODO Event handler should be hidden?
     }
 }

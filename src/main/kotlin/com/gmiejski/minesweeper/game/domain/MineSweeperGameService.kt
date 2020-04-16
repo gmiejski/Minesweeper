@@ -6,6 +6,9 @@ import kotlin.random.Random
 typealias GameID = Int
 
 class GameNotFound(gameID: GameID) : RuntimeException("Game $gameID not found")
+class AlreadyDiscovered(fieldCoordinate: FieldCoordinate) : RuntimeException("Field $fieldCoordinate already discovered")
+class AlreadyStarted(gameID: GameID) : RuntimeException("Game $gameID already started.")
+
 
 class MineSweeperGameService(val repository: GameRepository, val commandHandler: GameCommandHandler) {
 
@@ -18,11 +21,13 @@ class MineSweeperGameService(val repository: GameRepository, val commandHandler:
     }
 
     fun executeAction(gameID: GameID, command: Command) {
+
         val find = repository.find(gameID) ?: throw GameNotFound(gameID)
 
     }
 
     fun getGameGrid(gameID: GameID): BoardView {
-        return BoardView(1, 1, emptyList()) // TODO
+
+        return BoardView(1, 1, emptyMap()) // TODO
     }
 }

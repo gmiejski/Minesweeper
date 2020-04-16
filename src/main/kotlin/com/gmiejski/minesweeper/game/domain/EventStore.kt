@@ -10,23 +10,24 @@ class GameRepository(val eventHandler: EventHandler, val eventStore: EventStore)
         return eventHandler.applyAll(Game(gameID), events)
     }
 
-    fun applyAll(game: Game, events: List<GameEvent>): Game {
+    fun applyAll(game: Game, events: List<DomainEvent>): Game {
+        // TODO save
         return this.eventHandler.applyAll(game, events)
     }
 }
 
 interface EventStore {
-    fun get(gameID: GameID): List<GameEvent>
-    fun saveAll(gameID: GameID, events: List<GameEvent>)
+    fun get(gameID: GameID): List<DomainEvent>
+    fun saveAll(gameID: GameID, events: List<DomainEvent>)
 }
 
 class InMemoryEventStore : EventStore {
-    val events: MutableList<GameEvent> = mutableListOf()
-    override fun get(gameID: GameID): List<GameEvent> {
+    val events: MutableList<DomainEvent> = mutableListOf()
+    override fun get(gameID: GameID): List<DomainEvent> {
         return events.filter { it.target == gameID }.sortedBy { it.time }
     }
 
-    override fun saveAll(gameID: GameID, events: List<GameEvent>) {
+    override fun saveAll(gameID: GameID, events: List<DomainEvent>) {
         this.events.addAll(events)
     }
 }

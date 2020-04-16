@@ -4,5 +4,9 @@ class Configuration {
 }
 
 fun build(): MineSweeperGameService {
-    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(Generator()))
+    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(RandomGenerator()))
+}
+
+fun buildForTest(generator: RandomGenerator): MineSweeperGameService {
+    return MineSweeperGameService(GameRepository(EventHandler(), InMemoryEventStore()), GameCommandHandler(generator))
 }
