@@ -4,15 +4,21 @@ package com.gmiejski.minesweeper.game.domain
 interface Command
 
 data class DiscoverFieldCommand(val fieldCoordinate: FieldCoordinate) : Command
-class CreateGameCommand(val rows: Int, val columns: Int, val bombsCount: Int) : Command
+data class CreateGameCommand(val rows: Int, val columns: Int, val bombsCount: Int) : Command
+data class ToggleFieldCommand(val gameID: GameID, val fieldCoordinate: FieldCoordinate) : Command
 
 class GameCommandHandler(val bombsCoordinatesGenerator: BombsCoordinatesGenerator) {
     fun process(game: Game, command: Command): List<DomainEvent> {
         return when (command) {
             is CreateGameCommand -> this.newGame(game, command)
             is DiscoverFieldCommand -> this.discover(game, command.fieldCoordinate)
+            is ToggleFieldCommand -> this.toggle(game, command.fieldCoordinate)
             else -> listOf()
         }
+    }
+
+    private fun toggle(game: Game, fieldCoordinate: FieldCoordinate): List<DomainEvent> {
+        return game.toggle(fieldCoordinate)
     }
 
     private fun discover(game: Game, fieldCoordinate: FieldCoordinate): List<DomainEvent> {

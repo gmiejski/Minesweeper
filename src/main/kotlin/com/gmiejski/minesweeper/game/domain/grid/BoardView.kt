@@ -14,10 +14,11 @@ class BoardView(val rows: Int, val columns: Int, originalGrid: Grid) {
             BoardViewRow(gridRow.map { cell ->
                 if (cell.isDiscovered) {
                     BoardViewField(cell.coordinate, cell.fieldValue)
+                } else if (cell.isToggled) {
+                    BoardViewField(cell.coordinate, FLAGGED)
                 } else {
                     BoardViewField(cell.coordinate, UNKNOWN)
                 }
-
             })
         }
         return map

@@ -3,12 +3,13 @@ package com.gmiejski.minesweeper.game.domain.grid
 import com.gmiejski.minesweeper.game.domain.FieldCoordinate
 
 
-typealias FieldValue = Int
+typealias FieldValue = Int // TODO refactor to enum
 
 
 const val BOMB = -2
 const val SAFE_FIELD = 0
 const val UNKNOWN = -3
+const val FLAGGED = -4
 
 typealias Grid = List<GridRow>
 
@@ -22,7 +23,7 @@ fun GridRow.getColumn(column: Int): GridCell {
 }
 
 
-data class GridCell(val coordinate: FieldCoordinate, var isDiscovered: Boolean, val fieldValue: FieldValue)
+data class GridCell(val coordinate: FieldCoordinate, val fieldValue: FieldValue, var isDiscovered: Boolean = false, var isToggled: Boolean = false)
 
 class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates: Set<FieldCoordinate>) {
     private val grid = buildGrid(bombsCoordinates)
@@ -34,7 +35,7 @@ class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates
             IntRange(1, columns).forEach { col ->
                 val coordinate = FieldCoordinate(row, col)
                 val value = calculateFieldValue(coordinate, bombsCoordinates)
-                newRow.add(GridCell(coordinate, false, value))
+                newRow.add(GridCell(coordinate, value))
             }
             result.add(newRow)
         }
@@ -68,11 +69,11 @@ class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates
     }
 
     private fun getFieldValue(coordinate: FieldCoordinate): FieldValue {
-        this.checkCoordinate(coordinate)
         return findCell(coordinate).fieldValue
     }
 
     private fun findCell(coordinate: FieldCoordinate): GridCell {
+        this.checkCoordinate(coordinate)
         return this.grid.getRow(coordinate.row).getColumn(coordinate.column)
     }
 
@@ -81,9 +82,9 @@ class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates
     }
 
     fun isDiscovered(coordinate: FieldCoordinate): Boolean {
-        this.checkCoordinate(coordinate)
         return findCell(coordinate).isDiscovered
     }
+
 
     fun discoverAllAround(fieldCoordinate: FieldCoordinate): List<FieldCoordinate> {
         if (this.isBomb(fieldCoordinate) || this.isDangerousField(fieldCoordinate)) {
@@ -120,7 +121,6 @@ class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates
 
     // Dangerous field is when it's neighbour is a bomb
     private fun isDangerousField(coordinate: FieldCoordinate): Boolean {
-        this.checkCoordinate(coordinate)
         return getFieldValue(coordinate) > SAFE_FIELD
     }
 
@@ -138,6 +138,15 @@ class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates
 
     fun mapAsDiscovered(coordinate: FieldCoordinate) {
         this.findCell(coordinate).isDiscovered = true
+    }
+
+    fun toggle(coordinate: FieldCoordinate) {
+        val cell = findCell(coordinate)
+        cell.isToggled = !cell.isToggled
+    }
+
+    fun isToggled(coordinate: FieldCoordinate): Boolean {
+        return findCell(coordinate).isToggled
     }
 }
 

@@ -34,6 +34,8 @@ class GameServiceTest {
         val exception = shouldThrow<AlreadyDiscovered> {
             gameService.executeAction(game.gameID, DiscoverFieldCommand(FieldCoordinate(1, 1)))
         }
+        exception.gameID shouldBe game.gameID
+        exception.fieldCoordinate shouldBe FieldCoordinate(1, 1)
     }
 
     @Test

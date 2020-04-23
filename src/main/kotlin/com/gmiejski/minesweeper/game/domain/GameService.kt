@@ -5,10 +5,11 @@ import kotlin.random.Random
 
 typealias GameID = Int
 
-class GameNotFound(gameID: GameID) : RuntimeException("Game $gameID not found")
-class AlreadyDiscovered(fieldCoordinate: FieldCoordinate) : RuntimeException("Field $fieldCoordinate already discovered")
-class AlreadyStarted(gameID: GameID) : RuntimeException("Game $gameID already started.")
-
+class GameNotFound(val gameID: GameID) : RuntimeException("Game $gameID not found")
+class AlreadyDiscovered(val gameID: GameID, val fieldCoordinate: FieldCoordinate) : RuntimeException("Field $fieldCoordinate already discovered on game $gameID")
+class AlreadyStarted(val gameID: GameID) : RuntimeException("Game $gameID already started.")
+class CannotToggleField(val gameID: GameID, val field: FieldCoordinate, reason: String) : RuntimeException("Cannot toggle field $field at game $gameID. Reason: $reason")
+class CannotDiscoverToggledField(val gameID: GameID, val field: FieldCoordinate) : RuntimeException("Field $field on game $gameID cannot be discovered because it's flagged!")
 
 class MineSweeperGameService(val repository: GameRepository, val commandHandler: GameCommandHandler) {
 

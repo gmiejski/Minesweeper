@@ -30,6 +30,9 @@ class EventHandler {
                     is FieldDiscoveredEvent -> {
                         game.confirmDiscovery(event.allDiscoveredFields)
                     }
+                    is FieldToggled -> {
+                        game.toggle(event.coordinate)
+                    }
                 }
             }
         }

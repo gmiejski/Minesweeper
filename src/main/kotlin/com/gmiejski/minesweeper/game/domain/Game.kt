@@ -19,15 +19,15 @@ data class GameCreatedEvent(override val target: GameID, val rows: Int, val colu
 data class GameEnded(override val target: GameID) : DomainEvent(target)
 data class BombExploded(override val target: GameID, val bombField: FieldCoordinate) : DomainEvent(target)
 data class FieldDiscoveredEvent(override val target: GameID, val discoveredField: FieldCoordinate, val allDiscoveredFields: List<FieldCoordinate>) : DomainEvent(target)
+class FieldToggled(override val target: GameID, val coordinate: FieldCoordinate) : DomainEvent(target)
 
 class Game(val gameID: GameID) {
     private var currentStatus: GameStatus = GameStatus.IN_PROGRESS
     private lateinit var gameGrid: GameGrid // TODO change for non-lateinit empty Grid
 
     fun discover(fieldCoordinate: FieldCoordinate): List<DomainEvent> {
-        if (gameGrid.isDiscovered(fieldCoordinate)) {
-            throw AlreadyDiscovered(fieldCoordinate)
-        }
+        if (gameGrid.isDiscovered(fieldCoordinate)) throw AlreadyDiscovered(gameID, fieldCoordinate)
+        if (gameGrid.isToggled(fieldCoordinate)) throw CannotDiscoverToggledField(gameID, fieldCoordinate)
         if (gameGrid.isBomb(fieldCoordinate)) {
             val now = LocalDateTime.now()
             return listOf(BombExploded(gameID, fieldCoordinate).occurredAt(now), GameEnded(gameID).occurredAt(now))
@@ -59,7 +59,17 @@ class Game(val gameID: GameID) {
     fun confirmDiscovery(allDiscoveredFields: List<FieldCoordinate>) {
         allDiscoveredFields.forEach { this.gameGrid.mapAsDiscovered(it) }
     }
+
+    fun toggle(coordinate: FieldCoordinate): List<DomainEvent> {
+        if (this.gameGrid.isDiscovered(coordinate)) {
+            throw CannotToggleField(this.gameID, coordinate, "Cannot toggle discovered field")
+        }
+        this.gameGrid.toggle(coordinate)
+
+        return listOf(FieldToggled(gameID, coordinate))
+    }
 }
+
 
 enum class DiscoverTry {
     ALREADY_DISCOVERED, CAN_BE_DISCOVERED
