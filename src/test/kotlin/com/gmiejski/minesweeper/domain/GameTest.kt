@@ -25,7 +25,7 @@ class GameTest {
         // then
         events.size.shouldBe(2)
         events.first().shouldBe(BombExploded(game.gameID, bombField))
-        events.last().shouldBe(GameEnded(game.gameID))
+        events.last().shouldBe(GameLost(game.gameID))
     }
 
     @Test
@@ -112,35 +112,6 @@ class GameTest {
             events.shouldBe(listOf(FieldDiscoveredEvent(game.gameID, field, listOf(field))))
         }
     }
-
-
-    @Test
-    fun getBoardView() {
-        // given
-        val game = generateGame(5, 5, setOf(FieldCoordinate(3, 3)))
-
-        // when
-        game.discover(FieldCoordinate(1, 1))
-
-        // then
-        val view = game.getBoardView()
-//        view.visibleFields shouldBe listOf(FieldCoordinate(1, 1))
-    }
-
-    @Test
-    fun discoveringBombFieldEndsGame() {
-        return
-        // given
-        val game = generateGame(5, 5, setOf(FieldCoordinate(3, 3)))
-
-        // when
-        val result = game.discover(FieldCoordinate(3, 3))
-
-        // then
-        result.shouldBe(DiscoveryResult.BOMB)
-        game.status().shouldBe(GameStatus.EXPLODED)
-    }
-
 
     private fun generateGame(rows: Int, columns: Int, bombsPositions: Set<FieldCoordinate>): Game {
         return GameBuilder(rows, columns).bombs(bombsPositions).build()

@@ -26,7 +26,7 @@ fun GridRow.getColumn(column: Int): GridCell {
 data class GridCell(val coordinate: FieldCoordinate, val fieldValue: FieldValue, var isDiscovered: Boolean = false, var isToggled: Boolean = false)
 
 class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates: Set<FieldCoordinate>) {
-    private val grid = buildGrid(bombsCoordinates)
+    private val grid: Grid = buildGrid(bombsCoordinates)
 
     private fun buildGrid(bombsCoordinates: Set<FieldCoordinate>): Grid {
         val result = mutableListOf<GridRow>()
@@ -147,6 +147,17 @@ class GameGrid(private val rows: Int, private val columns: Int, bombsCoordinates
 
     fun isToggled(coordinate: FieldCoordinate): Boolean {
         return findCell(coordinate).isToggled
+    }
+
+    fun allFieldsDiscovered(): Boolean {
+        val all = this.grid.all { this.isRowDiscovered(it) }
+        return all
+    }
+
+    private fun isRowDiscovered(row: GridRow): Boolean {
+        val none = row.none { !it.isDiscovered && it.fieldValue > SAFE_FIELD }
+        val map = row.map { !it.isDiscovered && it.fieldValue > SAFE_FIELD }
+        return none
     }
 }
 

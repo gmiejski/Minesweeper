@@ -1,8 +1,7 @@
 package com.gmiejski.minesweeper.game.application
 
 import com.gmiejski.minesweeper.game.domain.*
-import com.gmiejski.minesweeper.game.domain.grid.BoardView
-import com.gmiejski.minesweeper.game.domain.grid.BoardViewDTO
+import com.gmiejski.minesweeper.game.domain.grid.GameViewDTO
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -26,9 +25,9 @@ class GamesController(val gameService: MineSweeperGameService) {
     }
 
     @GetMapping("/games/{id}")
-    fun getGrid(@PathVariable("id") gameID: Int): ResponseEntity<BoardViewDTO> {
+    fun getGrid(@PathVariable("id") gameID: Int): ResponseEntity<GameViewDTO> {
         try {
-            val gameGrid = gameService.getGameGrid(gameID)
+            val gameGrid = gameService.getGameView(gameID)
             return ResponseEntity.ok(gameGrid.toDTO())
         } catch (exception: GameNotFound) {
             return ResponseEntity.notFound().build()

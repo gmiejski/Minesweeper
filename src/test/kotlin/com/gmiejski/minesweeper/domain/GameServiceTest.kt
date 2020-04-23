@@ -1,7 +1,6 @@
 package com.gmiejski.minesweeper.domain
 
 import com.gmiejski.minesweeper.game.domain.*
-import com.gmiejski.minesweeper.game.domain.grid.BoardView
 import com.gmiejski.minesweeper.game.domain.grid.FieldValue
 import com.gmiejski.minesweeper.game.domain.grid.SAFE_FIELD
 import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
@@ -26,7 +25,8 @@ class GameServiceTest {
     @Test
     fun cannotDiscoverSameFieldTwice() {
         // given
-        val gameService = build()
+        val bombs = listOf(FieldCoordinate(2, 2))
+        val gameService = buildForTest(PredictableBombsCoordinatesGenerator(bombs))
         val game = gameService.startGame(5, 5, 1)
         gameService.executeAction(game.gameID, DiscoverFieldCommand(FieldCoordinate(1, 1)))
 
@@ -48,9 +48,9 @@ class GameServiceTest {
         val game = gameService.startGame(5, 5, 0)
 
         // then
-        val grid = gameService.getGameGrid(game.gameID)
-        grid.rows.shouldBe(5)
-        grid.columns.shouldBe(5)
+        val grid = gameService.getGameView(game.gameID)
+        grid.view.rows.shouldBe(5)
+        grid.view.columns.shouldBe(5)
     }
 
 
@@ -66,10 +66,10 @@ class GameServiceTest {
         gameService.executeAction(game.gameID, DiscoverFieldCommand(fieldToDiscover))
 
         // then
-        val grid = gameService.getGameGrid(game.gameID)
+        val grid = gameService.getGameView(game.gameID)
 
         grid.getFieldValue(fieldToDiscover).state.shouldBe(1)
-        grid.gridRows.forEach { row ->
+        grid.view.gridRows.forEach { row ->
             row.fields.forEach { field ->
                 if (field.coordinate != fieldToDiscover) {
                     field.state.shouldBe(UNKNOWN)
@@ -97,7 +97,7 @@ class GameServiceTest {
         gameService.executeAction(game.gameID, DiscoverFieldCommand(fieldToDiscover))
 
         // then
-        val grid = gameService.getGameGrid(game.gameID)
+        val grid = gameService.getGameView(game.gameID)
         DrawGrid().draw(grid)
         val allExpectedDiscovered = expectedSafeFields.all { grid.getFieldValue(it).state == SAFE_FIELD }
         val expectedHidden = coordinatesList(listOf(Pair(5, 4), Pair(5, 5)))
@@ -108,23 +108,23 @@ class GameServiceTest {
     }
 }
 
-fun generateAllCoordinates(boardView: BoardView): Set<FieldCoordinate> {
+fun generateAllCoordinates(boardView: GameView): Set<FieldCoordinate> {
     val result = mutableSetOf<FieldCoordinate>()
-    IntRange(1, boardView.rows).forEach { row ->
-        IntRange(1, boardView.columns).forEach { col ->
+    IntRange(1, boardView.view.rows).forEach { row ->
+        IntRange(1, boardView.view.columns).forEach { col ->
             result.add(FieldCoordinate(row, col))
         }
     }
     return result
 }
 
-fun expectState(boardView: BoardView, fields: Collection<FieldCoordinate>, expectedState: FieldValue) {
+fun expectState(boardView: GameView, fields: Collection<FieldCoordinate>, expectedState: FieldValue) {
     fields.forEach {
         boardView.getFieldValue(it).state shouldBe expectedState
     }
 }
 
-fun expectState(grid: BoardView, fields: Set<FieldCoordinate>, function: (FieldValue) -> Boolean) {
+fun expectState(grid: GameView, fields: Set<FieldCoordinate>, function: (FieldValue) -> Boolean) {
     fields.forEach {
         if (!function(grid.getFieldValue(it).state)) {
             function(grid.getFieldValue(it).state) shouldBe true

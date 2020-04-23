@@ -1,13 +1,17 @@
 package com.gmiejski.minesweeper.domain
 
+import com.gmiejski.minesweeper.game.domain.GameView
 import com.gmiejski.minesweeper.game.domain.grid.BOMB
-import com.gmiejski.minesweeper.game.domain.grid.BoardView
-import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
 import com.gmiejski.minesweeper.game.domain.grid.SAFE_FIELD
+import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
+
+fun drawGrid(grid: GameView) {
+    DrawGrid().draw(grid)
+}
 
 class DrawGrid {
-    fun draw(view: BoardView) {
-        view.gridRows.forEach {
+    fun draw(view: GameView) {
+        view.view.gridRows.forEach {
             print("____".repeat(it.fields.size))
             println()
             it.fields.forEach {

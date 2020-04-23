@@ -3,9 +3,8 @@ package com.gmiejski.minesweeper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gmiejski.minesweeper.game.application.DiscoverFieldRequest
 import com.gmiejski.minesweeper.game.application.GameCreatedDTO
-import com.gmiejski.minesweeper.game.domain.grid.BoardViewDTO
+import com.gmiejski.minesweeper.game.domain.grid.GameViewDTO
 import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
-import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
@@ -94,10 +93,10 @@ class MineSweeperApplicationTests @Autowired constructor(val mapper: ObjectMappe
         return gameCreated.gameID
     }
 
-    private fun getGrid(gameID: Int): BoardViewDTO {
+    private fun getGrid(gameID: Int): GameViewDTO {
         val gridResponse = mvc!!.perform(MockMvcRequestBuilders.get("/games/${gameID}")).andReturn()
         gridResponse.response.status shouldBe HttpStatus.OK.value()
-        val grid = mapper!!.readValue(gridResponse.response.contentAsString, BoardViewDTO::class.java)
+        val grid = mapper!!.readValue(gridResponse.response.contentAsString, GameViewDTO::class.java)
         return grid
     }
 }

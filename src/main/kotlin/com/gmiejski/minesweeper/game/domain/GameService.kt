@@ -1,6 +1,5 @@
 package com.gmiejski.minesweeper.game.domain
 
-import com.gmiejski.minesweeper.game.domain.grid.BoardView
 import kotlin.random.Random
 
 typealias GameID = Int
@@ -10,8 +9,9 @@ class AlreadyDiscovered(val gameID: GameID, val fieldCoordinate: FieldCoordinate
 class AlreadyStarted(val gameID: GameID) : RuntimeException("Game $gameID already started.")
 class CannotToggleField(val gameID: GameID, val field: FieldCoordinate, reason: String) : RuntimeException("Cannot toggle field $field at game $gameID. Reason: $reason")
 class CannotDiscoverToggledField(val gameID: GameID, val field: FieldCoordinate) : RuntimeException("Field $field on game $gameID cannot be discovered because it's flagged!")
+class GameAlreadyEnded(val gameID: GameID, val status: GameStatus) : RuntimeException("Game $gameID already ended with status: $status")
 
-class MineSweeperGameService(val repository: GameRepository, val commandHandler: GameCommandHandler) {
+class MineSweeperGameService(private val repository: GameRepository, private val commandHandler: GameCommandHandler) {
 
     fun startGame(rows: Int, columns: Int, bombsCount: Int): Game {
         val gameID = Random.nextInt()
@@ -27,8 +27,8 @@ class MineSweeperGameService(val repository: GameRepository, val commandHandler:
         this.repository.applyAll(game, events)
     }
 
-    fun getGameGrid(gameID: GameID): BoardView {
-        val find = repository.find(gameID)
-        return find?.getBoardView() ?: throw GameNotFound(gameID)
+    fun getGameView(gameID: GameID): GameView {
+        val game = repository.find(gameID)
+        return game?.getView() ?: throw GameNotFound(gameID)
     }
 }

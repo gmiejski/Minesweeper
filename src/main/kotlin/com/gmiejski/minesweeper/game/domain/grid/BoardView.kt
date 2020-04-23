@@ -1,6 +1,7 @@
 package com.gmiejski.minesweeper.game.domain.grid
 
 import com.gmiejski.minesweeper.game.domain.FieldCoordinate
+import com.gmiejski.minesweeper.game.domain.GameStatus
 
 
 data class BoardViewRow(val fields: List<BoardViewField>)
@@ -31,13 +32,9 @@ class BoardView(val rows: Int, val columns: Int, originalGrid: Grid) {
     fun getFieldValue(coordinate: FieldCoordinate): BoardViewField {
         return this.getFieldValue(coordinate.row, coordinate.column)
     }
-
-    fun toDTO(): BoardViewDTO {
-        return BoardViewDTO(rows, columns, BoardViewGridDTO(gridRows.map { BoardViewRowDTO(it.fields.map { BoardViewFieldDTO(it.coordinate, it.state) }) }))
-    }
 }
 
 data class BoardViewFieldDTO(val coordinate: FieldCoordinate, val state: FieldValue)
 data class BoardViewRowDTO(val fields: List<BoardViewFieldDTO>)
 data class BoardViewGridDTO(val rows: List<BoardViewRowDTO>)
-class BoardViewDTO(val rows: Int, val columns: Int, val grid: BoardViewGridDTO)
+class GameViewDTO(val status: GameStatus, val rows: Int, val columns: Int, val grid: BoardViewGridDTO)

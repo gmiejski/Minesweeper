@@ -1,6 +1,5 @@
 package com.gmiejski.minesweeper.domain
 
-import com.gmiejski.minesweeper.game.domain.EventHandler
 import com.gmiejski.minesweeper.game.domain.FieldCoordinate
 import com.gmiejski.minesweeper.game.domain.Game
 import com.gmiejski.minesweeper.game.domain.GameBuilder
@@ -15,10 +14,8 @@ class DrawGridTest {
         val game = generateGame(5, 10, setOf(FieldCoordinate(3, 3)))
 
         // when
-        val result = game.discover(FieldCoordinate(1, 1))
-        val eve1 = game.discover(FieldCoordinate(3, 2))
-        EventHandler().applyAll(game, listOf(result.first(), eve1.first()))
-        val view = game.getBoardView()
+        game.discover(FieldCoordinate(1, 1))
+        val view = game.getView()
         DrawGrid().draw(view)
 
     }

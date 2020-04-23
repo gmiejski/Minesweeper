@@ -16,9 +16,10 @@ class GameFlaggingTest {
     @Test
     fun cannotToggleDiscoveredField() {
         // given
-        val gameService = buildForTest(PredictableBombsCoordinatesGenerator(singleBombMap))
+        val bombs = listOf(FieldCoordinate(2, 2))
+        val gameService = buildForTest(PredictableBombsCoordinatesGenerator(bombs))
         val game = gameService.startGame(5, 5, 5)
-        val discoveredField = FieldCoordinate(1, 1)
+        val discoveredField = FieldCoordinate(3, 3)
         gameService.executeAction(game.gameID, DiscoverFieldCommand(discoveredField))
 
         // expect
@@ -38,14 +39,14 @@ class GameFlaggingTest {
         gameService.executeAction(game.gameID, ToggleFieldCommand(game.gameID, emptyField))
 
         // then
-        val gameGrid = gameService.getGameGrid(game.gameID)
+        val gameGrid = gameService.getGameView(game.gameID)
         gameGrid.getFieldValue(emptyField).state shouldBe FLAGGED
 
         // when
         gameService.executeAction(game.gameID, ToggleFieldCommand(game.gameID, emptyField))
 
         // then
-        val gameGrid2 = gameService.getGameGrid(game.gameID)
+        val gameGrid2 = gameService.getGameView(game.gameID)
         gameGrid2.getFieldValue(emptyField).state shouldBe UNKNOWN
     }
 

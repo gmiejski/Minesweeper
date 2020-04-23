@@ -8,8 +8,10 @@ Plan:
 * [x] Generate game
 * [x] start new game
 * [x] make an action to a given game
-* [x] run locally on k8s with one node
-* [ ] ES - compare and set with events 
+* [x] Win a game
+* [x] cannot perform any action when game is lost or won
+* [ ] run locally on k8s with one node
+* [ ] ES - compare and set with events based on versions 
 * [ ] run DB on k8s locally?
 
 
