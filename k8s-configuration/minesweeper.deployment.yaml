@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minesweeper-api
+  labels:
+    app: minesweeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minesweeper
+  template:
+    metadata:
+      labels:
+        app: minesweeper
+    spec:
+      containers:
+        - name: mine-sweeper
+          image: mine-sweeper:v1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+          ports:
+            - containerPort: 8080

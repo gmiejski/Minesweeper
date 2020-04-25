@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: minesweeper-api
+spec:
+  containers:
+    - name: mine-sweeper
+      image: mine-sweeper:v1
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: 8080
