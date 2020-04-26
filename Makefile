@@ -1,5 +1,9 @@
 .Phony: build run
 
+
+test:
+	./gradlew clean test
+
 build-game:
 	./gradlew bootJar
 	docker build -t mine-sweeper:v1 -f Dockerfile .
@@ -15,3 +19,6 @@ restart-local-k8s:
 
 mongo-deploy-local-k8s:
 	helm upgrade -f k8s-configuration/mongodb.yaml  minesweeper-mongo-40 stable/mongodb-replicaset
+
+compose-local-development:
+	docker-compose run -d -p27017:27017 mongo

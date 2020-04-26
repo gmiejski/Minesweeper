@@ -1,8 +1,9 @@
 package com.gmiejski.minesweeper.game.domain
 
+import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer
 import com.gmiejski.minesweeper.game.domain.grid.*
 import java.time.LocalDateTime
-import kotlin.random.Random
+import java.util.*
 
 enum class DiscoveryResult { // TODO remove
     BOMB, EMPTY
@@ -12,14 +13,75 @@ enum class GameStatus {
     NOT_INITIALIZED, IN_PROGRESS, LOST, WON
 }
 
-data class FieldCoordinate(val row: Int, val column: Int)
+data class FieldCoordinate(
+    @field:TaggedFieldSerializer.Tag(0) val row: Int,
+    @field:TaggedFieldSerializer.Tag(1) val column: Int) {
 
-data class GameCreatedEvent(override val target: GameID, val rows: Int, val columns: Int, val bombsCoordinates: Set<FieldCoordinate>) : DomainEvent(target)
-data class GameLost(override val target: GameID) : DomainEvent(target)
-data class GameWon(override val target: GameID) : DomainEvent(target)
-data class BombExploded(override val target: GameID, val bombField: FieldCoordinate) : DomainEvent(target)
-data class FieldDiscoveredEvent(override val target: GameID, val discoveredField: FieldCoordinate, val allDiscoveredFields: List<FieldCoordinate>) : DomainEvent(target)
-data class FieldToggled(override val target: GameID, val coordinate: FieldCoordinate) : DomainEvent(target)
+    constructor() : this(0, 0)
+}
+
+sealed class DomainEvent() {
+    var time: LocalDateTime
+
+    init {
+        time = LocalDateTime.now()
+    }
+
+    fun occurredAt(time: LocalDateTime): DomainEvent {
+        return this
+    }
+
+    abstract fun getID(): GameID // TODO AggregateID rather than GameID
+}
+
+
+data class GameCreatedEvent(
+    @field:TaggedFieldSerializer.Tag(0) val target: GameID,
+    @field:TaggedFieldSerializer.Tag(1) val rows: Int,
+    @field:TaggedFieldSerializer.Tag(2) val columns: Int,
+    @field:TaggedFieldSerializer.Tag(3) val bombsCoordinates: Set<FieldCoordinate>
+) : DomainEvent() {
+    constructor() : this("", 0, 0, setOf())
+
+    override fun getID(): GameID {
+        return target
+    }
+}
+
+data class GameLost(val target: GameID) : DomainEvent() {
+    override fun getID(): GameID {
+        return target
+
+    }
+}
+
+data class GameWon(val target: GameID) : DomainEvent() {
+    override fun getID(): GameID {
+        return target
+
+    }
+}
+
+data class BombExploded(val target: GameID, val bombField: FieldCoordinate) : DomainEvent() {
+    override fun getID(): GameID {
+        return target
+
+    }
+}
+
+data class FieldDiscoveredEvent(val target: GameID, val discoveredField: FieldCoordinate, val allDiscoveredFields: List<FieldCoordinate>) : DomainEvent() {
+    override fun getID(): GameID {
+        return target
+
+    }
+}
+
+data class FieldToggled(val target: GameID, val coordinate: FieldCoordinate) : DomainEvent() {
+    override fun getID(): GameID {
+        return target
+
+    }
+}
 
 class Game(val gameID: GameID) {
     private var currentStatus: GameStatus = GameStatus.IN_PROGRESS
@@ -93,8 +155,9 @@ class GameBuilder(val rows: Int, val cols: Int) {
     }
 
     fun build(): Game {
-        val gameCreatedEvent = GameCreatedEvent(Random.nextInt(), rows, cols, this.bombsCoordinates).occurredAt(LocalDateTime.now())
-        return EventHandler().applyAll(Game(Random.nextInt()), listOf(gameCreatedEvent))// TODO Event handler should be hidden?
+        val gameID = UUID.randomUUID().toString()
+        val gameCreatedEvent = GameCreatedEvent(gameID, rows, cols, this.bombsCoordinates).occurredAt(LocalDateTime.now())
+        return EventHandler().applyAll(Game(gameID), listOf(gameCreatedEvent))// TODO Event handler should be hidden?
     }
 }
 

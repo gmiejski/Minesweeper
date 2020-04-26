@@ -1,10 +1,14 @@
 package com.gmiejski.minesweeper.game.domain
 
+import org.springframework.context.annotation.Profile
+import org.springframework.stereotype.Component
+
 interface BombsCoordinatesGenerator {
     fun generate(rows: Int, columns: Int, bombsCount: Int): Set<FieldCoordinate>
 }
 
-
+@Component
+@Profile(PROD)
 class RandomBombsCoordinatesGenerator : BombsCoordinatesGenerator {
     override fun generate(rows: Int, columns: Int, bombsCount: Int): Set<FieldCoordinate> {
         val allPossibleCoordinates = this.allCoordinates(rows, columns)

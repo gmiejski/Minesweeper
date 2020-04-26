@@ -7,14 +7,15 @@ import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class GameServiceTest {
 
     @Test
     fun errorWhenNoGameStarted() {
         // given
-        val gameService = build()
-        val notExistingGameID = 1
+        val gameService = buildForTest()
+        val notExistingGameID = UUID.randomUUID().toString()
 
         // expect
         val exception = shouldThrow<GameNotFound> {

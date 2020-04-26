@@ -6,17 +6,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 
-data class GameCreatedDTO(val gameID: Int)
+data class GameCreatedDTO(val gameID: GameID)
 data class DiscoverFieldRequest(val row: Int, val col: Int)
 
 
 @RestController("/")
 class GamesController(val gameService: MineSweeperGameService) {
-
-    @GetMapping
-    fun helloGradle(): String {
-        return "Hello Gradle!"
-    }
 
     @PostMapping("/games")
     fun createGame(): ResponseEntity<GameCreatedDTO> {
@@ -25,7 +20,7 @@ class GamesController(val gameService: MineSweeperGameService) {
     }
 
     @GetMapping("/games/{id}")
-    fun getGrid(@PathVariable("id") gameID: Int): ResponseEntity<GameViewDTO> {
+    fun getGrid(@PathVariable("id") gameID: GameID): ResponseEntity<GameViewDTO> {
         try {
             val gameGrid = gameService.getGameView(gameID)
             return ResponseEntity.ok(gameGrid.toDTO())
@@ -35,7 +30,7 @@ class GamesController(val gameService: MineSweeperGameService) {
     }
 
     @PostMapping("/games/{id}/actions")
-    fun discoverField(@PathVariable("id") gameID: Int, @RequestBody request: DiscoverFieldRequest): ResponseEntity<Unit> {
+    fun discoverField(@PathVariable("id") gameID: GameID, @RequestBody request: DiscoverFieldRequest): ResponseEntity<Unit> {
         try {
             gameService.executeAction(gameID, DiscoverFieldCommand(FieldCoordinate(request.row, request.col)))
             return ResponseEntity.ok().build()

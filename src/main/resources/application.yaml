@@ -1,0 +1,2 @@
+mongo:
+  url: "mongodb://minesweeper-mongo-40-mongodb-replicaset:27017/minesweeper?w=majority"

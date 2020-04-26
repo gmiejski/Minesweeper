@@ -1,24 +1,15 @@
 package com.gmiejski.minesweeper.game.domain
 
+import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 
-abstract class DomainEvent(open val target: GameID) {
-    var time: LocalDateTime
-
-    init {
-        time = LocalDateTime.now()
-    }
-
-    fun occurredAt(time: LocalDateTime): DomainEvent {
-        return this
-    }
-}
 
 fun Collection<DomainEvent>.withDate(time: LocalDateTime): List<DomainEvent> {
     return this.map { it.occurredAt(time) }
 }
 
+@Component
 class EventHandler {
     fun applyAll(game: Game, events: List<DomainEvent>): Game {
         events.forEach { event ->

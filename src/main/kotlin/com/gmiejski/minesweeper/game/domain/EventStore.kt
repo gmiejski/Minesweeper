@@ -1,6 +1,8 @@
 package com.gmiejski.minesweeper.game.domain
 
+import org.springframework.stereotype.Repository
 
+@Repository
 class GameRepository(val eventHandler: EventHandler, val eventStore: EventStore) {
     fun find(gameID: GameID): Game? {
         val events = eventStore.get(gameID)
@@ -25,7 +27,7 @@ interface EventStore {
 class InMemoryEventStore : EventStore {
     val events: MutableList<DomainEvent> = mutableListOf()
     override fun get(gameID: GameID): List<DomainEvent> {
-        return events.filter { it.target == gameID }.sortedBy { it.time }
+        return events.filter { it.getID() == gameID }.sortedBy { it.time }
     }
 
     override fun saveAll(gameID: GameID, events: List<DomainEvent>) {

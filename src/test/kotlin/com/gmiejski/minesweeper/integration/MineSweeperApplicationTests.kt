@@ -1,36 +1,25 @@
-package com.gmiejski.minesweeper
+package com.gmiejski.minesweeper.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gmiejski.minesweeper.game.application.DiscoverFieldRequest
 import com.gmiejski.minesweeper.game.application.GameCreatedDTO
+import com.gmiejski.minesweeper.game.domain.GameID
+import com.gmiejski.minesweeper.game.domain.PredictableBombsCoordinatesGenerator
 import com.gmiejski.minesweeper.game.domain.grid.GameViewDTO
 import com.gmiejski.minesweeper.game.domain.grid.UNKNOWN
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class MineSweeperApplicationTests @Autowired constructor(val mapper: ObjectMapper) {
+
+class MineSweeperApplicationTests @Autowired constructor(val mapper: ObjectMapper) : AbstractIT() {
 
     @Autowired
-    private val mvc: MockMvc? = null
-
-
-    @Test
-    fun contextLoads() {
-        mvc!!.perform(MockMvcRequestBuilders.get("/"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string("Hello Gradle!"))
-    }
+    lateinit var generator: PredictableBombsCoordinatesGenerator
 
     @Test
     fun startAGame() {
@@ -39,7 +28,7 @@ class MineSweeperApplicationTests @Autowired constructor(val mapper: ObjectMappe
         createGameResult.response.status shouldBe HttpStatus.OK.value()
 
         // when
-        val gameCreated = mapper!!.readValue(createGameResult.response.contentAsString, GameCreatedDTO::class.java)
+        val gameCreated = mapper.readValue(createGameResult.response.contentAsString, GameCreatedDTO::class.java)
 
         // then
         val grid = getGrid(gameCreated.gameID)
@@ -86,17 +75,17 @@ class MineSweeperApplicationTests @Autowired constructor(val mapper: ObjectMappe
     }
 
 
-    private fun createGame(): Int {
+    private fun createGame(): GameID {
         val createGameResult = mvc!!.perform(MockMvcRequestBuilders.post("/games")).andReturn()
         createGameResult.response.status shouldBe HttpStatus.OK.value()
-        val gameCreated = mapper!!.readValue(createGameResult.response.contentAsString, GameCreatedDTO::class.java)
+        val gameCreated = mapper.readValue(createGameResult.response.contentAsString, GameCreatedDTO::class.java)
         return gameCreated.gameID
     }
 
-    private fun getGrid(gameID: Int): GameViewDTO {
+    private fun getGrid(gameID: GameID): GameViewDTO {
         val gridResponse = mvc!!.perform(MockMvcRequestBuilders.get("/games/${gameID}")).andReturn()
         gridResponse.response.status shouldBe HttpStatus.OK.value()
-        val grid = mapper!!.readValue(gridResponse.response.contentAsString, GameViewDTO::class.java)
+        val grid = mapper.readValue(gridResponse.response.contentAsString, GameViewDTO::class.java)
         return grid
     }
 }

@@ -1,5 +1,7 @@
 package com.gmiejski.minesweeper.game.domain
 
+import org.springframework.stereotype.Component
+
 
 interface Command
 
@@ -7,6 +9,7 @@ data class DiscoverFieldCommand(val fieldCoordinate: FieldCoordinate) : Command
 data class CreateGameCommand(val rows: Int, val columns: Int, val bombsCount: Int) : Command
 data class ToggleFieldCommand(val gameID: GameID, val fieldCoordinate: FieldCoordinate) : Command
 
+@Component
 class GameCommandHandler(val bombsCoordinatesGenerator: BombsCoordinatesGenerator) {
     fun process(game: Game, command: Command): List<DomainEvent> {
         return when (command) {
