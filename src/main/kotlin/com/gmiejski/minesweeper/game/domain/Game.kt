@@ -42,44 +42,43 @@ data class GameCreatedEvent(
     @field:TaggedFieldSerializer.Tag(3) val bombsCoordinates: Set<FieldCoordinate>
 ) : DomainEvent() {
     constructor() : this("", 0, 0, setOf())
-
     override fun getID(): GameID {
         return target
     }
 }
 
 data class GameLost(val target: GameID) : DomainEvent() {
+    constructor() : this("")
     override fun getID(): GameID {
         return target
-
     }
 }
 
 data class GameWon(val target: GameID) : DomainEvent() {
+    constructor() : this("")
     override fun getID(): GameID {
         return target
-
     }
 }
 
 data class BombExploded(val target: GameID, val bombField: FieldCoordinate) : DomainEvent() {
+    constructor() : this("", FieldCoordinate())
     override fun getID(): GameID {
         return target
-
     }
 }
 
 data class FieldDiscoveredEvent(val target: GameID, val discoveredField: FieldCoordinate, val allDiscoveredFields: List<FieldCoordinate>) : DomainEvent() {
+    constructor() : this("", FieldCoordinate(), emptyList())
     override fun getID(): GameID {
         return target
-
     }
 }
 
 data class FieldToggled(val target: GameID, val coordinate: FieldCoordinate) : DomainEvent() {
+    constructor() : this("", FieldCoordinate())
     override fun getID(): GameID {
         return target
-
     }
 }
 

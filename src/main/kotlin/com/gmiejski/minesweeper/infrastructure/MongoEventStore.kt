@@ -27,16 +27,12 @@ import java.util.concurrent.TimeUnit
 
 @ConfigurationProperties
 @Configuration
-@Profile(PROD, TEST)
 class MongoConfiguration() {
     @Value("\${mongo.url}")
     lateinit var mongoUrl: String
 }
 
-
 @Component
-@Profile(PROD, TEST)
-
 class MongoEventsAccessor(configuration: MongoConfiguration) {
     val games = build(configuration)
 
@@ -87,7 +83,6 @@ class MongoEventRow {
 }
 
 @Repository
-@Profile(PROD, TEST)
 class MongoEventStore(val accessor: MongoEventsAccessor, val eventSerializer: EventSerializer) : EventStore {
 
     override fun get(gameID: GameID): List<DomainEvent> {

@@ -1,8 +1,11 @@
 FROM openjdk:slim
 
+WORKDIR /opt/MineSweeper/lib/
 RUN mkdir -p /opt/MineSweeper/lib/
-COPY build/libs/MineSweeper-Demo-0.0.1-SNAPSHOT.jar /opt/MineSweeper/lib/
+COPY build/libs/*.jar /opt/MineSweeper/lib/mine-sweeper.jar
 
 ENV PORT 8080
 EXPOSE 8080/tcp
-CMD ["java", "-jar", "/opt/MineSweeper/lib/MineSweeper-Demo-0.0.1-SNAPSHOT.jar"]
+RUN pwd
+RUN ls
+CMD ["java", "-jar", "/opt/MineSweeper/lib/mine-sweeper.jar"]

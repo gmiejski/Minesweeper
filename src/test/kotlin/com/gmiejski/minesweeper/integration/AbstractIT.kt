@@ -8,7 +8,6 @@ import org.springframework.test.web.servlet.MockMvc
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("integration")
 class AbstractIT {
     @Autowired
     protected val mvc: MockMvc? = null

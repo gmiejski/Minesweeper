@@ -49,7 +49,6 @@ private fun List<Class<out DomainEvent>>.classesByNames(): Map<String, Class<out
 class EventSerializerConfiguration {
 
     @Bean
-    @Profile(PROD, TEST)
     fun eventSerializer(): EventSerializer {
         val allPossibleEvents = DomainEvent::class.sealedSubclasses.map { it.java }
         return EventSerializer(allPossibleEvents)

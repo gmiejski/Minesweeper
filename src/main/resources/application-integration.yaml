@@ -1,2 +1,2 @@
 mongo:
-  url: "mongodb://localhost:27017/minesweeper"
+  url: "mongodb://mongo:27017/minesweeper"

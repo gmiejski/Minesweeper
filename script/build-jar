@@ -1,0 +1,2 @@
+docker-compose run -v $(pwd)/:/opt/MineSweeper/lib -v /Users/grzmiejski/.gradle/caches:/home/gradle/.gradle/caches --no-deps mine-sweeper bootJar
+
