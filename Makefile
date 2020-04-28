@@ -20,6 +20,8 @@ local-development:
 	docker-compose run -d -p27017:27017 mongo
 
 deploy-local:
+	./gradlew bootJar
+	docker build -t mine-sweeper:1.0.0 -f Dockerfile .
 	kubectl apply -f k8s-configuration/minesweeper.deployment.yaml
 
 restart-local-k8s:

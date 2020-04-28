@@ -38,3 +38,15 @@ Creating MongoDB:
 
     $ kubectl exec --namespace default POD_NAME -- mongo --eval="rs.slaveOk(); db.test.find().forEach(printjson)"
 ```
+
+## Running:
+
+* test: `./gradlew clean test`
+* test in docker: `./script/test-ci`
+* run locally:
+  * in Intellij -> first run `make local-development`
+  * in docker -> `make build-and-run`
+* deploy to k8s locally:
+  * `make deploy-local`
+  
+

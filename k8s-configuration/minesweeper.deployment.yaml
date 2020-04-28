@@ -16,10 +16,13 @@ spec:
     spec:
       containers:
         - name: mine-sweeper
-          image: mine-sweeper:v1
+          image: mine-sweeper:1.0.0
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
