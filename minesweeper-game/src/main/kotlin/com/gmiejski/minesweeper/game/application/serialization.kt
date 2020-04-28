@@ -9,13 +9,10 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class KotlinModuleJackson() {
-    @Autowired
-    fun configureObjectMapper(mapper: ObjectMapper) {
-        mapper.registerModule(KotlinModule())
-    }
-
     @Bean
     fun objectMapper(): ObjectMapper {
-        return ObjectMapper()
+        val mapper = ObjectMapper()
+        mapper.registerModule(KotlinModule())
+        return mapper
     }
 }

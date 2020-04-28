@@ -7,9 +7,9 @@ run-minesweeper-game:
 	docker-compose run -p8080:8080 minesweeper-game
 
 run-minesweeper:
-	cd minesweeper-game ; make build
-	cd minesweeper-otherservice ; make build
-	docker-compose up -p8080:8080
+	cd minesweeper-game ; make build-service
+	cd minesweeper-otherservice ; make build-service
+	docker-compose up
 
 test:
 	SPRING_PROFILES_ACTIVE=local ./gradlew clean test

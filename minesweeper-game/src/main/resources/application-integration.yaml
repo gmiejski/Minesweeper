@@ -2,4 +2,4 @@ mongo:
   url: "mongodb://mongo:27017/minesweeper"
 
 otherservice:
-  url: "http://minesweeper-otherservice:8081"
+  url: "http://minesweeper-otherservice:8080"

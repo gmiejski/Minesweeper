@@ -4,17 +4,16 @@
 test:
 	SPRING_PROFILES_ACTIVE=local ./gradlew clean test --info
 
-build:
+build-service:
 	./gradlew bootJar
-	docker build -t mine-sweeper:local -f Dockerfile .
-
+	docker build -t mine-sweeper-game:local -f Dockerfile .
 
 local-development:
 	docker-compose run -d -p27017:27017 mongo
 
 deploy-local:
 	./gradlew bootJar
-	docker build -t mine-sweeper:1.0.0 -f Dockerfile .
+	docker build -t mine-sweeper-game:1.0.0 -f Dockerfile .
 	kubectl apply -f k8s-configuration/deployment.yaml
 
 restart-local-k8s:

@@ -7,6 +7,7 @@ import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -36,14 +37,14 @@ class OtherServiceClient(val otherServiceConfiguration: OtherServiceConfiguratio
         val request = HttpGet(url.toURI())
 
         val response: CloseableHttpResponse = client.execute(request)
-        response.toString()
+        val json: String = IOUtils.toString(response.entity.content)
+        client.close()
+        val logger = LoggerFactory.getLogger(OtherServiceController::class.java)
+        logger.error(json)
         if (response.statusLine.statusCode == HttpStatus.OK.value()) {
-            val json: String = IOUtils.toString(response.entity.content)
             val importantData = objectMapper.readValue(json, OtherServiceData::class.java)
-            client.close()
             return importantData
         }
-        client.close()
         throw RuntimeException(response.toString())
     }
 }
