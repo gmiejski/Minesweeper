@@ -1,0 +1,13 @@
+allprojects {
+    group "com.gmiejski.minesweeper"
+    version '0.0.1-SNAPSHOT'
+
+    apply plugin: "idea"
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}

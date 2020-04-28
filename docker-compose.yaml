@@ -1,24 +1,11 @@
 version: '3.1'
 
 services:
-  app:
-    image: mine-sweeper:local
+  minesweeper-game:
+    image: mine-sweeper-game:local
     build:
       context: .
-      dockerfile: Dockerfile
-    env_file: .env
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mongo
-
-
-  mine-sweeper-ci:
-    image: mine-sweeper-ci
-    build:
-      context: .
-      dockerfile: gradle.Dockerfile
-    command: ["gradle", "--info" ,"--no-daemon", "bootRun"]
+      dockerfile: minesweeper-game/Dockerfile
     env_file: .env
     ports:
       - "8080:8080"
@@ -29,3 +16,12 @@ services:
     image: mongo:4.0
     ports:
       - "27017:27017"
+
+  minesweeper-otherservice:
+    image: mine-sweeper-otherservice:local
+    build:
+      context: .
+      dockerfile: minesweeper-otherservice/Dockerfile
+    env_file: .env
+    ports:
+      - "8081:8080"
