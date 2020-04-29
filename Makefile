@@ -12,4 +12,8 @@ run-minesweeper:
 	docker-compose up
 
 test:
-	SPRING_PROFILES_ACTIVE=local ./gradlew clean test
+	SPRING_PROFILES_ACTIVE=local ./gradlew clean test --info
+
+deploy-local:
+	cd minesweeper-game ; make deploy-local
+	cd minesweeper-otherservice ; make deploy-local

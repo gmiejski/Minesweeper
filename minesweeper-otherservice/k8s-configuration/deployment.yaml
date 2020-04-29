@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minesweeper-game
+  name: minesweeper-otherservice
   labels:
-    app: minesweeper-game
+    app: minesweeper-otherservice
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: minesweeper-game
+      app: minesweeper-otherservice
   template:
     metadata:
       labels:
-        app: minesweeper-game
+        app: minesweeper-otherservice
     spec:
       containers:
-        - name: minesweeper-game
-          image: mine-sweeper-game:1.0.0
+        - name: mine-sweeper-otherservice
+          image: mine-sweeper-otherservice:1.0.0
           livenessProbe:
             httpGet:
               path: /health

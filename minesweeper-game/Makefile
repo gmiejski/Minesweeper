@@ -17,7 +17,7 @@ deploy-local:
 	kubectl apply -f k8s-configuration/deployment.yaml
 
 restart-local-k8s:
-	kubectl rollout restart deployment minesweeper-api
+	kubectl rollout restart deployment minesweeper-game
 
 mongo-deploy-local-k8s:
 	helm upgrade -f k8s-configuration/mongodb.yaml  minesweeper-mongo-40 stable/mongodb-replicaset

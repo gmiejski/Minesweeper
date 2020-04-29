@@ -33,13 +33,14 @@ class OtherServiceController @Autowired constructor(val otherServiceClient: Othe
 class OtherServiceClient(val otherServiceConfiguration: OtherServiceConfiguration, val objectMapper: ObjectMapper) {
     fun call(): OtherServiceData {
         val client: CloseableHttpClient = HttpClients.createDefault()
+        val logger = LoggerFactory.getLogger(OtherServiceController::class.java)
         val url = URL(URL(otherServiceConfiguration.otherServiceUrl), "other")
+        logger.error(url.toURI().toString())
         val request = HttpGet(url.toURI())
 
         val response: CloseableHttpResponse = client.execute(request)
         val json: String = IOUtils.toString(response.entity.content)
         client.close()
-        val logger = LoggerFactory.getLogger(OtherServiceController::class.java)
         logger.error(json)
         if (response.statusLine.statusCode == HttpStatus.OK.value()) {
             val importantData = objectMapper.readValue(json, OtherServiceData::class.java)
