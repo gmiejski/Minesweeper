@@ -12,7 +12,7 @@ Plan:
 * [x] cannot perform any action when game is lost or won
 * [x] run DB on k8s locally?
 * [x] run locally on k8s with one node
-* [ ] run another service communicating with previous one 
+* [x] run another service communicating with previous one 
 * [ ] ES - compare and set with events based on versions 
 
 Later or never:
